@@ -1,0 +1,106 @@
+kubectl run --rm -ti --generator=run-pod/va podtest --image=nginx:alpine -- sh  # Correr pod temporal 
+kubectl config set-context ci-context --namespace=ci --cluster=minikube --user=minikube  # crear nuevo contexto 
+kubectl config use-context ci-context  # cambiar de contexto
+
+##LIMITS Y REQUESTS 
+lIMIT == LIMITE DE MEMORIA
+REQUEST == capacidad DE MEMORIA 
+
+kubectl get nodes
+kubectl describe node minikube   ## allocation de cpu 
+
+qos pods == tipo de pod de acuerdo a su configuracion 
+(guaranteed / burstable / BestEffort)
+kubectl get pods $POD -o yaml | grep -i qos
+
+#LIMITRANGE  (A nivel de namespace Y OBJETO)
+Inyecta los valores al ns y todos los pods creados dentro obtendran esos valores
+kubectl get limitrange 
+kubectl describe limit range NOMBRE -n
+kubectl get pod $POD -o yaml -n dev | grep -i limits / requests 
+kubectl describe ns 
+
+#RESOURCE QUOTA (A NIVEL DE NAMESPACE EN GENERAL LIMITA TODOS LOS RECURSOS)
+kubectl describe resourcequotas -n dev NOMBRE
+
+
+#PROBES (Diagnosticos a pods como health check  comando/puerto/ HTTP request)
+-Livenes :  Health check 
+-Readines :  Diagnostico antes de exponer el pod 
+-Startup :  checar que la app este arriba 
+
+#VARIABLES DE ENTORNO 
+- env: 
+- name: VAR1
+  value: "valor de prueba 1"
+
+  env > dentor del pod nos deja ver las variables de ENTORNO
+  kubectl exec -ti envar-demo -- sh > entar al pod 
+
+  --variables de referencia 
+  kubectl get pods -o yaml  > ver datos del pod 
+
+#CONFIG MAPS  (CONFIGURACIONES GLOBALES) key - value configs (data no sensible)
+kubectl create configmap nginx-config --from-file=configmaps-examples/nginx.conf
+kubectl get configmaps
+kubectl describe configmaps nginx-config
+
+- 2 formas de atachar el config map 
+  1. a traves de un volument montado en el pod 
+  2. a traves de variables de entoron 
+
+##SECRETS  (data sensible)
+kubectl create secret generic mysecret --from-file=./secret-files/test.txt
+kubectl get secrets
+kubectl describe secrets mysecret
+kubectl delete secret mysecret
+-Los archivos son decodeados en base64
+echo c2VjcmV0MT1ob2xhCnNlY3JldDI9YWRpb3M= | base64 --decode
+
+stringData lo encodea a base 64 \ data tienes que poner el valor en base 64 
+
+##VOLUMENES (Persistent data)
+- EmptyDir (crear directorio a nivel del pod | muere con el pod )
+- HostPath (no depende del pod, depende del nodo)
+- CloudVols (EBS y Persistent Disks)
+
+-Persistent Volume ( encargado de aprovisionar cloud storage)
+-Persistent Volume Claim ( Reclama espacio al PV)
+
+-Reclaim ( Retain (No se elimina el PV pero ya no es accesible )
+         | Recycle (Elimina contenido del PV y lo deja disponible ) 
+         | Delete (Se elimina todo alv))
+
+kubectl get pv
+kubectl descrive $PV
+kubectl get pvc
+
+- Storage class (aprovisionamiento dinamico)
+kubectl get sc
+
+
+##RBAC USERS AND GROUPS 
+- Role == define namespace vs ClusterRole == no define namespace
+- RoleBinding = asignar rol a usuario mediante archivo yaml
+- ClusterRoleBinding  =
+- Usuarios = Crear certificados para cada usuario (kubernetes no tiene herramienta para crear users)
+-
+
+-Crear cert 
+kubectl config view   =cert del cluster 
+### certificate-authority: /Users/josepinon/.minikube/ca.crt
+
+kubectl cluster-info dump | grep authorization-mode   = verificar que RBAC este habilitado
+
+-Roles 
+kubectl get roles
+kubectl desribe role pod-reader -n NAMESPACE
+kubectl get rolebinding
+
+-ClusterRole == ACCESO A TODOS LOS RECURSOS DEL Cluster
+kubectl get clusterroles
+administrador == cluster-admin
+
+
+
+

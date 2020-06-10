@@ -1,0 +1,44 @@
+---
+    apiVersion: v1
+    kind: Namespace
+    metadata: 
+        name: ci
+        labels:
+          name: ci
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-k8s
+  namespace: ci
+  labels:
+    app: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: ricardocg94/k8s-hands:v2
+        imagePullPolicy: IfNotPresent
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-k8s
+  namespace: ci
+  labels: 
+    app: backend
+spec:
+  selector:
+    app: backend
+  ports:
+    - protocol: TCP
+      port: 80  #Puerto del servicio
+      targetPort: 9090 #puerto dentro del contenedor
