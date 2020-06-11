@@ -88,7 +88,7 @@ kubectl get sc
 
 -Crear cert 
 kubectl config view   =cert del cluster 
-### certificate-authority: /Users/josepinon/.minikube/ca.crt
+# certificate-authority: /Users/josepinon/.minikube/ca.crt
 
 kubectl cluster-info dump | grep authorization-mode   = verificar que RBAC este habilitado
 
@@ -100,6 +100,29 @@ kubectl get rolebinding
 -ClusterRole == ACCESO A TODOS LOS RECURSOS DEL Cluster
 kubectl get clusterroles
 administrador == cluster-admin
+
+##Service Account  (pods permissions) (RoleBinding asignado a service account)
+-1 por defualt al que son asignados los pods 
+kubectl get serviceaccount
+kubectl get secret
+
+- Hacer llamados a la api de kubernetes desde un pod dentro del cluster 
+curl http://Kubernetes/api/v1/namespaces/default/pods --insecure
+
+-Utilizando token para hacer request 
+TOKEN = $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+curl -H "Authorization: Bearer ${TOKEN}" https://10.96.0.1/api/v1 --insecure
+# Se deben agregar los roles al sa para que tenga permisos adecuados
+
+
+## INGRESS (Exponer servicios fuera del cluster)
+Cluster IP 
+Node Port (puerto arriba de #3000)
+Load Balancer (Cloud)
+
+
+
+
 
 
 
