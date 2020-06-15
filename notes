@@ -120,6 +120,30 @@ Cluster IP
 Node Port (puerto arriba de #3000)
 Load Balancer (Cloud)
 
+- Ingress controller 
+Deployment que aplica las reglas para dirigir trafico en el cluster con Ingress 
+Nginx o GCP 
+1) Crear controldor nginx-controller.yaml
+----*** OBTENER IP DEL SERVICIO EN MINKUBE ***------
+  minikube service ingress-nginx --url -n ingress-nginx
+
+2) Crear servicio y app ingress-example.yaml
+3) Crear reglas ingress-rules.yaml
+4) Para trabajar con dominio agregar dominio a /etc/hosts
+192.168.64.2 app1.mydomain.com
+5) Crear segunda aplicacion para exponerla en 9090 app-ingress2.yaml
+6) Agregar nuevas reglas a rules.
+7) Reglas para cada host y path ingress-rules-host.yaml
+
+
+### AWS EKS
+- Instalar AWS CLI 
+- Crear y configurar usuario con acceso de admin en IAM y CLI 
+# aws sts get-caller-identity  -- comprobar usuario 
+- Instalar eksctl (like kubectl)
+# eksctl version 
+
+
 
 
 

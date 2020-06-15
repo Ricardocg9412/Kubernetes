@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-test
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: app1.mydomain.com # Regla con dominios
+    http:
+      paths:
+      - backend:
+          serviceName: app-v1
+          servicePort: 8080
+  - http:
+      paths: 
+      -  path: /appv1   #Url que deben pedir en el ingress
+         backend:
+           serviceName: app-v1  #Servicio creado
+           servicePort: 8080
+  - host: app2.mydomain.com
+    http:
+      paths:
+      - backend:
+           serviceName: api-server-svc
+           servicePort: 9090
