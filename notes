@@ -143,6 +143,106 @@ Nginx o GCP
 - Instalar eksctl (like kubectl)
 # eksctl version 
 
+-Crear cluster en EKS
+#eksctl create cluster --name test-cluster --without-nodegroup --region us-east-1 --zones us-east-1a,us-east-1b
+#aws eks --region us-east-1 update-kubeconfig --name test-cluster  ///Archivo de configuracion 
+#kubectl get svc 
+#kubectl cluster-info   // info del cluster 
+
+-Crear pod
+#kubectl run --generator=run-pod/v1 test --image=nginx:alpine    // No se genera porque hay que crear el nodo
+#kubectl get nodes   // no hay 
+
+-Crear Nodos
+#eksctl create nodegroup \
+--cluster test-cluster \
+--version auto \
+--name test-workers \
+--node-type t3.medium \
+--node-ami auto \
+--nodes 1 \
+--nodes-min 1 \
+--nodes-max 3 \
+--asg-access
+
+#kubectl get nodes   // se crea instancia de EC2 
+#kubectl delete pod test 
+
+### Ingress en AWS 
+-IAM prerequisites 
+eksctl utils associate-iam-oidc-provider \
+--region us-east-1 \
+--cluster test-cluster \
+--approve
+
+#aws iam create-policy \
+    --policy-name ALBIngressControllerIAMPolicy \
+    --policy-document https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.4/docs/examples/iam-policy.json
+
+eksctl create iamserviceaccount \
+    --region us-east-1 \
+    --name alb-ingress-controller \
+    --namespace kube-system \
+    --cluster test-cluster \
+    --attach-policy-arn arn:aws:iam::043185404238:policy/ALBIngressControllerIAMPolicy \
+    --override-existing-serviceaccounts \
+    --approve
+
+#kubectl get all -n 2048-game 
+
+***Pasos detallados para creal ALB 
+https://docs.aws.amazon.com/eks/latest/userguide/alb-ingress.html
+
+#kubectl port-forward pod/2048-deployment-dd74cc68d-cvtqj -n 2048-game 7000:80 ///Ver pod local desde un cluster externo 
+
+- Despues de crear el servicio 
+#kubectl get ingress -n 2048-game  // obtener DNS || Desde aws buscar en load balancers 
+// El listener forwardea a un target group 
+
+- Editar reglas del ingress 
+#kubectl edit ingress 2048-ingress 0n 2048-ingress 
+
+// Agregar la regla 
+
+spec:
+  rules:
+  - host: app.aws.game
+    http:
+      paths:
+      - backend:
+          serviceName: service-2048
+          servicePort: 80
+        path: /*
+
+- Crear DNS local que apunte a la ip del DNS de AWS 
+ nslookup d7f12bb1-2048game-2048ingr-6fa0-815062298.us-east-1.elb.amazonaws.com // Obtener ip y agregarla a /etc/hosts
+
+
+### Horizontal Pod Scaler (Escala pods de acuerdo al uso de CPU basado en metricas)
+
+- Inastalar metric server 
+https://docs.aws.amazon.com/eks/latest/userguide/horizontal-pod-autoscaler.html
+
+- Crear HPA 
+kubectl run httpd --image=httpd --limits=cpu=500m --expose --port=80  // Crear deployment para testear 
+kubectl autoscale deployment httpd --cpu-percent=50 --min=1 --max=10  //Crear HPA 
+kubectl describe hpa httpd 
+kubectl hpa edit hpa httpd 
+
+
+##Cluster autoscaler (Ademas de pod scala los nodos)
+
+https://docs.aws.amazon.com/eks/latest/userguide/cluster-autoscaler.html
+
+
+
+
+
+
+
+
+
+
 
 
 
