@@ -7,6 +7,7 @@
 ## Comandos:
   minikube start --vm-driver=none
   minikube status 
+  minikube dashboard
 
   kubectl run --generator=run-pod/v1 podtest --image=nginx:alpine 
   kubectl get pods
@@ -21,6 +22,8 @@
   kubectl apply -f YAML FILE
   *(python -m http.server 8081)
   kubectl get pods -l app=dev   //Filtrar pod por label 
+  kubectl explain node // explain nodes 
+  kubectl logs $DEPLOYMENT // VIEW LOGS 
 
  ## REPLICASETS
  kubectl get replicaset
@@ -38,6 +41,7 @@
  kubectl apply -f .yaml --record
  --rollout
  kubectl rollout undo deployment $deployment
+ kubectl create deployment NAME --image=IMAGE
 
  ## SERVICES (Balanceador entrega un IP unica)
  - 2 tipos de puertos
